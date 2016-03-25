@@ -14,7 +14,8 @@ defmodule Polestar.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger,:cowboy, :plug]]
+    [ mod: {Polestar, []},
+      applications: [:logger,:cowboy, :plug]]
   end
 
   # Dependencies can be Hex packages:
