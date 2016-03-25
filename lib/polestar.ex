@@ -1,0 +1,2 @@
+defmodule Polestar do
+end
