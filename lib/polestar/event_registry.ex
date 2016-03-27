@@ -5,7 +5,7 @@ defmodule Polestar.EventRegistry do
   @test_routes ["users/:id/profile","/users/:id/settings","users/:id/profile/edit","users/:id","course/:course_id/module/:id"]
   # Client API
   def start_link do
-    GenServer.start_link(__MODULE__, [])
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   def init do
@@ -13,17 +13,24 @@ defmodule Polestar.EventRegistry do
   end
 
   def lookup(path_info) do
-    Logger.debug "Path info #{inspect path_info}"
-    match(path_info)
+    GenServer.call(__MODULE__, {:lookup, path_info})
   end
 
-  def match(path_info) do
-    path_info
-    |> filter_by_length
+  # Callbacks
+  def handle_call({:lookup, path_info},_from,routes) do
+    Logger.debug "Looking up path info #{inspect path_info}"
+    {:reply,match(routes,path_info),routes}
+  end
+
+
+  # Helpers
+  def match(routes,path_info) do
+    routes
+    |> filter_by_length(path_info)
     |> match_values(path_info)
   end
 
-  def filter_by_length(path_info) do
+  def filter_by_length(routes,path_info) do
     #TODO routes can be converted to a list on creation
     Enum.map(@test_routes, &route_info/1) 
     |> Enum.filter fn(route) ->
@@ -38,7 +45,7 @@ defmodule Polestar.EventRegistry do
   end
 
   def match_values([],[]), do: {:ok, ["/"], %{}}
-  def match_values([], path_info), do: {:error, "No route matching /#{Enum.join(path_info,"/")}"}
+  def match_values([], path_info), do: {:error, "No route matching", "/#{Enum.join(path_info,"/")}"}
   def match_values([route|routes], path_info) do
     case match_route_elements(route,path_info) do
       {:ok, params} ->
