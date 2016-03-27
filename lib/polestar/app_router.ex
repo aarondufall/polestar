@@ -5,6 +5,7 @@ defmodule Polestar.AppRouter do
   plug :match
   plug :dispatch
 
+
   forward "/", to: Polestar.SmartRouter
 
   match _ do
