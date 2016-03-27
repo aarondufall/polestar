@@ -7,8 +7,4 @@ defmodule Polestar.AppRouter do
 
 
   forward "/", to: Polestar.SmartRouter
-
-  match _ do
-    send_resp(conn, 404, "oops")
-  end
 end
