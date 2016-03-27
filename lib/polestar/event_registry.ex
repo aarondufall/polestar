@@ -43,14 +43,14 @@ defmodule Polestar.EventRegistry do
     case match_route_elements(route,path_info) do
       {:ok, params} ->
         {:ok, route, params}
-      :error -> 
-        {:error, "No route matching /#{Enum.join(path_info,"/")}"}
+      :not_found -> 
+        match_values(routes, path_info)
     end
   end
 
   # match_route_elements/2
   def match_route_elements([r_head|r_tail], [r_head|p_tail]), do: match_route_elements(r_tail,p_tail,%{})
-  def match_route_elements(_routes,path_info), do: :error
+  def match_route_elements(_routes,path_info), do: :not_found
 
   # match_route_elements/3
   def match_route_elements([],[],params), do: {:ok, params}
@@ -59,6 +59,6 @@ defmodule Polestar.EventRegistry do
     match_route_elements(r_tail,p_tail,params)
   end
   def match_route_elements([r_head|r_tail], [r_head|p_tail],params), do: match_route_elements(r_tail,p_tail,params)
-  def match_route_elements(_routes,path_info,_params), do: :error
+  def match_route_elements(_routes,path_info,_params), do: :not_found
 
 end
