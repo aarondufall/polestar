@@ -1,5 +1,5 @@
 defmodule Polestar.SmartRouter do
-  require Logger
+  alias Polestar.{EventRegistry, EventHandler}
 
   def init(options) do
     options
@@ -11,8 +11,15 @@ defmodule Polestar.SmartRouter do
 
   def route("GET", path_info, conn) do
     # basic route route
-    Logger.info "Path info #{path_info}"
-    conn |> Plug.Conn.send_resp(200, "Hello, world!")
+    case EventRegistry.lookup(path_info) do
+      {:ok, handler, params} -> 
+        # TODO, build rest of params
+        {:ok, resp } = EventHandler.run(handler, params)
+        conn |> Plug.Conn.send_resp(200, resp)
+      {:error, reason } ->
+        conn
+        |> Plug.Conn.send_resp(404, reason)
+    end
   end
 
   def route(_, _, conn) do
