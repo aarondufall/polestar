@@ -1,7 +1,16 @@
 defmodule Polestar.EventRegistry do
+  use GenServer
   require Logger
 
-  @test_routes ["users/:id/profile","users/:id/profile/edit","users/:id","course/:course_id/module/:id"]
+  @test_routes ["users/:id/profile","/users/:id/settings","users/:id/profile/edit","users/:id","course/:course_id/module/:id"]
+  # Client API
+  def start_link do
+    GenServer.start_link(__MODULE__, [])
+  end
+
+  def init do
+    {:ok, @test_routes}
+  end
 
   def lookup(path_info) do
     Logger.debug "Path info #{inspect path_info}"
@@ -39,14 +48,17 @@ defmodule Polestar.EventRegistry do
     end
   end
 
+  # match_route_elements/2
   def match_route_elements([r_head|r_tail], [r_head|p_tail]), do: match_route_elements(r_tail,p_tail,%{})
+  def match_route_elements(_routes,path_info), do: :error
+
+  # match_route_elements/3
   def match_route_elements([],[],params), do: {:ok, params}
   def match_route_elements([":"<> param_id|r_tail], [param|p_tail],params) do 
     params = Map.put(params,param_id,param)
     match_route_elements(r_tail,p_tail,params)
   end
   def match_route_elements([r_head|r_tail], [r_head|p_tail],params), do: match_route_elements(r_tail,p_tail,params)
-  def match_route_elements(_routes,path_info), do: :error
   def match_route_elements(_routes,path_info,_params), do: :error
 
 end

@@ -7,8 +7,10 @@ defmodule Polestar do
     import Supervisor.Spec, warn: false
 
     children = [
-      # Start the endpoint when the application starts
+      # Start the http endpoint when the application starts
       worker(Polestar.Endpoint, []),
+      # Start router event register
+      worker(Polestar.EventRegistry, [])
       # Start the Ecto repository
       # Here you could define other workers and supervisors as children
       # worker(Polestar.Worker, [arg1, arg2, arg3]),
